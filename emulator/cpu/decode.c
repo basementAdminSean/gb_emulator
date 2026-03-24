@@ -17,7 +17,7 @@ void ld16m_a(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
 	printf("Instruction Binary: %08b\n", *ins);
-	printf("Assembly Conversion: ld [%s], a\n", regs16mem[register_index]);
+	printf("Assembly Conversion: ld [%s], a\n", regs8[register_index]);
 }
 
 void ld16_imm(Instr *I, uint8_t *ins)
@@ -36,6 +36,7 @@ void bit8_xor(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: xor %s\n", regs8[register_index]);
 }
 
+//load 16 bit immediate address into register or add 16 bit registers
 void bit16_la(Instr *I, uint8_t *ins)
 {
 	uint8_t switch_bit = ((*ins) >> 3) & 0x1;
@@ -51,6 +52,7 @@ void bit16_la(Instr *I, uint8_t *ins)
 	}
 }
 
+//jump register with condition
 void jrcond8_imm(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
@@ -62,6 +64,7 @@ void jrcond8_imm(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: jr %s, %01X\n", conds[cond_index], immaddr);
 }
 
+//jump with condition or next decision tree 
 void jr(Instr *I, uint8_t *ins)
 {
 	uint8_t cond_switch = ((*ins) >> 5) & 0x1;
@@ -237,7 +240,7 @@ int main()
 	{
 		printf("File opened...\n");
 
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < 10; i++)
 		{
 			fread(&ins, 1, 1, fp);
 			decode(&I, &ins);
