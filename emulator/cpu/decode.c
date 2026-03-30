@@ -13,11 +13,20 @@ struct instruction{
 
 typedef struct instruction Instr;
 
+void ld8_imm(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	uint8_t register_index = ((*ins) >> 3) & 0x7;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Assembly Conversion: ld %s, %02X\n", regs8[register_index], immaddr);
+}
+
 void ld16m_a(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
 	printf("Instruction Binary: %08b\n", *ins);
-	printf("Assembly Conversion: ld [%s], a\n", regs8[register_index]);
+	printf("Assembly Conversion: ld [%s], a\n", regs16mem[register_index]);
 }
 
 void ld16_imm(Instr *I, uint8_t *ins)
@@ -80,6 +89,20 @@ void jr(Instr *I, uint8_t *ins)
 	}
 }
 
+void bit6_switch(Instr *I, uint8_t *ins)
+{
+	uint8_t six_switch = ((*ins) >> 5) & 0x1;
+
+	switch (six_switch)
+	{
+		case 0x0:
+			break;
+		case 0x1:
+			//ld3_switch(I, ins); TODO: implement block 3 6th bit on switch for next command of ldh [c],a
+			break;
+	}
+}
+
 void block0(Instr *I, uint8_t *ins)
 {
 	uint8_t subcode = (*ins) & 0x7;
@@ -102,6 +125,8 @@ void block0(Instr *I, uint8_t *ins)
 		case 0x5:
 			break;
 		case 0x6:
+			I->length = 2;
+			ld8_imm(I, ins);
 			break;
 		case 0x7:
 			break;
@@ -128,6 +153,32 @@ void block2(Instr *I, uint8_t *ins)
 			break;
 		case 0x5:
 			bit8_xor(I, ins);
+			break;
+		case 0x6:
+			break;
+		case 0x7:
+			break;
+	}
+}
+
+void block3(Instr *I, uint8_t *ins)
+{
+	uint8_t subcode = (*ins) & 0x7;
+
+	switch(subcode)
+	{
+		case 0x0:
+			break;
+		case 0x1:
+			break;
+		case 0x2:
+			bit6_switch(I, ins);
+			break;
+		case 0x3:
+			break;
+		case 0x4:
+			break;
+		case 0x5:
 			break;
 		case 0x6:
 			break;
@@ -185,6 +236,7 @@ void decode(Instr *I, uint8_t *ins)
 			block2(I, ins);
 			break;
 		case 0x3:
+			block3(I, ins);
 			break;
 	}
 
@@ -240,7 +292,7 @@ int main()
 	{
 		printf("File opened...\n");
 
-		for(int i = 0; i < 10; i++)
+		for(int i = 0; i < 11; i++)
 		{
 			fread(&ins, 1, 1, fp);
 			decode(&I, &ins);
