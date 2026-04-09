@@ -38,6 +38,26 @@ void ld16_imm(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld %s, %04X\n", regs16[register_index], immaddr);
 }
 
+void ldh_a(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ld [c], a\n");
+}
+
+void ld3_switch(Instr *I, uint8_t *ins)
+{
+	uint8_t direction = ((*ins) >> 5) & 0x1;
+
+	switch(direction)
+	{
+		case 0x0:
+			ldh_a(I, ins);
+			break;
+		case 0x1:
+			break;
+	}
+}
+
 void bit8_xor(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = (*ins) & 0x7;
@@ -96,9 +116,10 @@ void bit6_switch(Instr *I, uint8_t *ins)
 	switch (six_switch)
 	{
 		case 0x0:
+			//jp cond, imm16
 			break;
 		case 0x1:
-			//ld3_switch(I, ins); TODO: implement block 3 6th bit on switch for next command of ldh [c],a
+			ld3_switch(I, ins);
 			break;
 	}
 }
@@ -292,7 +313,7 @@ int main()
 	{
 		printf("File opened...\n");
 
-		for(int i = 0; i < 11; i++)
+		for(int i = 0; i < 12; i++)
 		{
 			fread(&ins, 1, 1, fp);
 			decode(&I, &ins);
