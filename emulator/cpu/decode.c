@@ -46,7 +46,7 @@ void ldh_a(Instr *I, uint8_t *ins)
 
 void ld3_switch(Instr *I, uint8_t *ins)
 {
-	uint8_t direction = ((*ins) >> 5) & 0x1;
+	uint8_t direction = ((*ins) >> 4) & 0x1;
 
 	switch(direction)
 	{
@@ -91,6 +91,14 @@ void jrcond8_imm(Instr *I, uint8_t *ins)
 
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: jr %s, %01X\n", conds[cond_index], immaddr);
+}
+
+void inc_r8(Instr *I, uint8_t *ins)
+{
+	uint8_t reg_index = ((*ins) >> 3) & 0x7;
+
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: inc %s\n", regs8[reg_index]);
 }
 
 //jump with condition or next decision tree 
@@ -142,6 +150,7 @@ void block0(Instr *I, uint8_t *ins)
 		case 0x3:
 			break;
 		case 0x4:
+			inc_r8(I, ins);
 			break;
 		case 0x5:
 			break;
@@ -316,6 +325,7 @@ int main()
 		for(int i = 0; i < 12; i++)
 		{
 			fread(&ins, 1, 1, fp);
+			printf("Instruction Hex: %02X\n", ins);
 			decode(&I, &ins);
 		}
 	}
