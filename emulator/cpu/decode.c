@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 static const char* regs16[] = {"bc", "de", "hl", "sp"};
 static const char* regs16mem[] = {"bc", "de", "hl+", "hl-"};
@@ -18,8 +19,16 @@ void ld8_imm(Instr *I, uint8_t *ins)
 	uint8_t immaddr = 0;
 	uint8_t register_index = ((*ins) >> 3) & 0x7;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
 	printf("Assembly Conversion: ld %s, %02X\n", regs8[register_index], immaddr);
+}
+
+void ldr8_r8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	uint8_t register_index1 = ((*ins) >> 3) & 0x7;
+	uint8_t register_index2 = (*ins) & 0x7;
+	printf("Assembly Conversion: ld %s, %s\n", regs8[register_index1], regs8[register_index2]);
 }
 
 void ld16m_a(Instr *I, uint8_t *ins)
@@ -163,6 +172,19 @@ void block0(Instr *I, uint8_t *ins)
 	}
 }
 
+void block1(Instr *I, uint8_t *ins)
+{
+	switch(*ins)
+	{
+		case 0x76:
+			printf("HALT!!\n");
+			break;
+		default:
+			ldr8_r8(I, ins);
+			break;
+	}
+}
+
 void block2(Instr *I, uint8_t *ins)
 {
 	uint8_t subcode = ((*ins) >> 3) & 0x7;
@@ -261,6 +283,7 @@ void decode(Instr *I, uint8_t *ins)
 			block0(I, ins);
 			break;
 		case 0x1:
+			block1(I, ins);
 			break;
 		case 0x2:
 			block2(I, ins);
@@ -305,10 +328,25 @@ void decode(Instr *I, uint8_t *ins)
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
 	Instr I;
 	uint8_t ins;
+
+	switch(argc)
+	{
+		case 1:
+			printf("Program syntax: ./decode n \n\nn - amount of instructions to decode\n");
+			return 0;
+			break;
+		case 2:
+			break;
+		default:
+			printf("Please specify how many instructions to read as the only argument...\n");
+			return 0;
+			break;
+	}
+
 
 	FILE *fp = fopen("../../ROM/mgb_boot.bin", "rb");
 
@@ -321,13 +359,14 @@ int main()
 	else
 	{
 		printf("File opened...\n");
-
-		for(int i = 0; i < 12; i++)
+		
+		for(int i = 0; i < atoi(argv[1]); i++)
 		{
 			fread(&ins, 1, 1, fp);
 			printf("Instruction Hex: %02X\n", ins);
 			decode(&I, &ins);
 		}
+		
 	}
 
 	return 0;
