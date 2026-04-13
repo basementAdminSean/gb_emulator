@@ -23,6 +23,14 @@ void ld8_imm(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld %s, %02X\n", regs8[register_index], immaddr);
 }
 
+void ldhimm8_a(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: ldh %02X, a\n", immaddr);
+}
+
 void ldr8_r8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
@@ -36,6 +44,13 @@ void ld16m_a(Instr *I, uint8_t *ins)
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: ld [%s], a\n", regs16mem[register_index]);
+}
+
+void ld16a_m(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ld a, [%s]\n", regs16mem[register_index]);
 }
 
 void ld16_imm(Instr *I, uint8_t *ins)
@@ -53,41 +68,12 @@ void ldh_a(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld [c], a\n");
 }
 
-void ld3_switch(Instr *I, uint8_t *ins)
-{
-	uint8_t direction = ((*ins) >> 4) & 0x1;
-
-	switch(direction)
-	{
-		case 0x0:
-			ldh_a(I, ins);
-			break;
-		case 0x1:
-			break;
-	}
-}
 
 void bit8_xor(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = (*ins) & 0x7;
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: xor %s\n", regs8[register_index]);
-}
-
-//load 16 bit immediate address into register or add 16 bit registers
-void bit16_la(Instr *I, uint8_t *ins)
-{
-	uint8_t switch_bit = ((*ins) >> 3) & 0x1;
-
-	switch(switch_bit)
-	{
-		case 0x0:
-			I->length = 3;
-			ld16_imm(I, ins);			
-			break;
-		case 0x1:
-			break;
-	}
 }
 
 //jump register with condition
@@ -110,6 +96,51 @@ void inc_r8(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: inc %s\n", regs8[reg_index]);
 }
 
+void three_switch(Instr *I, uint8_t *ins)
+{
+	uint8_t direction = ((*ins) >> 3) & 0x1;
+
+	switch(direction)
+	{
+		case 0x0:
+			ld16m_a(I, ins);
+			break;
+		case 0x1:
+			ld16a_m(I, ins);
+			break;
+	}
+}
+
+void ld3_switch(Instr *I, uint8_t *ins)
+{
+	uint8_t direction = ((*ins) >> 4) & 0x1;
+
+	switch(direction)
+	{
+		case 0x0:
+			ldh_a(I, ins);
+			break;
+		case 0x1:
+			break;
+	}
+}
+
+//load 16 bit immediate address into register or add 16 bit registers
+void bit16_la(Instr *I, uint8_t *ins)
+{
+	uint8_t switch_bit = ((*ins) >> 3) & 0x1;
+
+	switch(switch_bit)
+	{
+		case 0x0:
+			I->length = 3;
+			ld16_imm(I, ins);			
+			break;
+		case 0x1:
+			break;
+	}
+}
+
 //jump with condition or next decision tree 
 void jr(Instr *I, uint8_t *ins)
 {
@@ -123,6 +154,38 @@ void jr(Instr *I, uint8_t *ins)
 		case 0x1:
 			jrcond8_imm(I, ins);
 			break;
+	}
+}
+
+void block3_imm8(Instr *I, uint8_t *ins)
+{
+	if(!(((*ins) >> 5) & 0x1))
+	{
+		I->length = 1;
+		//ret(I, ins);
+		return;
+	}
+	else
+	{
+		I->length = 2;
+		uint8_t two_switch = ((*ins) >> 3) & 0x3;
+
+		switch(two_switch)
+		{
+			case 0x0:
+				//ldh [imm8], a
+				ldhimm8_a(I, ins);
+				break;
+			case 0x1:
+				//add sp, imm8
+				break;
+			case 0x2:
+				//ldh a, [imm8]
+				break;
+			case 0x3:
+				//ld hl, sp + imm8
+				break;
+		}
 	}
 }
 
@@ -154,7 +217,7 @@ void block0(Instr *I, uint8_t *ins)
 			bit16_la(I, ins);
 			break;
 		case 0x2:
-			ld16m_a(I, ins);
+			three_switch(I, ins);
 			break;
 		case 0x3:
 			break;
@@ -220,6 +283,7 @@ void block3(Instr *I, uint8_t *ins)
 	switch(subcode)
 	{
 		case 0x0:
+			block3_imm8(I, ins);
 			break;
 		case 0x1:
 			break;
