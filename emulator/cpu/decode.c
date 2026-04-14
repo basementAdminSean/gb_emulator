@@ -62,12 +62,19 @@ void ld16_imm(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld %s, %04X\n", regs16[register_index], immaddr);
 }
 
+void call(Instr *I, uint8_t *ins)
+{
+	uint16_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Assembly Conversion: call %04X\n", immaddr);
+}
+
 void ldh_a(Instr *I, uint8_t *ins)
 {
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: ld [c], a\n");
 }
-
 
 void bit8_xor(Instr *I, uint8_t *ins)
 {
@@ -96,6 +103,28 @@ void inc_r8(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: inc %s\n", regs8[reg_index]);
 }
 
+void bit_ins(Instr *I, uint8_t *ins)
+{
+	uint8_t b_indx = ((*ins) >> 3) & 0x7;
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: bit %d, %s\n", b_indx, regs8[register_index]);
+}
+
+void inc16(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: inc %s\n", regs16mem[register_index]);
+}
+
+void dec16(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: dec %s\n", regs16mem[register_index]);
+}
+
 void three_switch(Instr *I, uint8_t *ins)
 {
 	uint8_t direction = ((*ins) >> 3) & 0x1;
@@ -107,6 +136,37 @@ void three_switch(Instr *I, uint8_t *ins)
 			break;
 		case 0x1:
 			ld16a_m(I, ins);
+			break;
+	}
+}
+
+void inc_dec(Instr *I, uint8_t *ins)
+{
+	uint8_t direction = ((*ins) >> 3) & 0x1;
+
+	switch(direction)
+	{
+		case 0x0:
+			inc16(I, ins);
+			break;
+		case 0x1:
+			dec16(I, ins);
+			break;
+	}
+}
+
+void call_stack(Instr *I, uint8_t *ins)
+{
+	uint8_t direction = ((*ins) >> 3) & 0x1;
+
+	switch(direction)
+	{
+		case 0x0:
+			//ld16m_a(I, ins);
+			break;
+		case 0x1:
+			I->length = 3;
+			call(I, ins);
 			break;
 	}
 }
@@ -220,6 +280,7 @@ void block0(Instr *I, uint8_t *ins)
 			three_switch(I, ins);
 			break;
 		case 0x3:
+			inc_dec(I, ins);
 			break;
 		case 0x4:
 			inc_r8(I, ins);
@@ -295,6 +356,7 @@ void block3(Instr *I, uint8_t *ins)
 		case 0x4:
 			break;
 		case 0x5:
+			call_stack(I, ins);
 			break;
 		case 0x6:
 			break;
@@ -328,13 +390,6 @@ void extended_tbl1(Instr *I, uint8_t *ins)
 	}
 }
 
-void bit_ins(Instr *I, uint8_t *ins)
-{
-	uint8_t b_indx = ((*ins) >> 3) & 0x7;
-	uint8_t register_index = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins);
-	printf("Assembly Conversion: bit %d, %s\n", b_indx, regs8[register_index]);
-}
 
 void decode(Instr *I, uint8_t *ins)
 {
