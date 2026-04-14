@@ -39,6 +39,70 @@ void ldr8_r8(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld %s, %s\n", regs8[register_index1], regs8[register_index2]);
 }
 
+void cp_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: cp a, %02X\n", immaddr);
+}
+
+void or_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: or a, %02X\n", immaddr);
+}
+
+void xor_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: xor a, %02X\n", immaddr);
+}
+
+void and_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: and a, %02X\n", immaddr);
+}
+
+void sbc_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: sbc a, %02X\n", immaddr);
+}
+
+void sub_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: sub a, %02X\n", immaddr);
+}
+
+void adc_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: adc a, %02X\n", immaddr);
+}
+
+void add_a8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: add a, %02X\n", immaddr);
+}
+
 void ld16m_a(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
@@ -264,6 +328,39 @@ void bit6_switch(Instr *I, uint8_t *ins)
 	}
 }
 
+void accumulator_ops8(Instr *I, uint8_t *ins)
+{
+	uint8_t subcode = ((*ins) >> 3) & 0x7;
+
+	switch(subcode)
+	{
+		case 0x0:
+			add_a8(I, ins);
+			break;
+		case 0x1:
+			adc_a8(I, ins);
+			break;
+		case 0x2:
+			sub_a8(I, ins);
+			break;
+		case 0x3:
+			sbc_a8(I, ins);
+			break;
+		case 0x4:
+			and_a8(I, ins);
+			break;
+		case 0x5:
+			xor_a8(I, ins);
+			break;
+		case 0x6:
+			or_a8(I, ins);
+			break;
+		case 0x7:
+			cp_a8(I, ins);
+			break;
+	}
+}
+
 void block0(Instr *I, uint8_t *ins)
 {
 	uint8_t subcode = (*ins) & 0x7;
@@ -359,6 +456,8 @@ void block3(Instr *I, uint8_t *ins)
 			call_stack(I, ins);
 			break;
 		case 0x6:
+			I->length = 2;
+			accumulator_ops8(I, ins);
 			break;
 		case 0x7:
 			break;
