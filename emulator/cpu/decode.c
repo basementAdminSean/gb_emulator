@@ -126,6 +126,14 @@ void ld16_imm(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld %s, %04X\n", regs16[register_index], immaddr);
 }
 
+void ld16_imma(Instr *I, uint8_t *ins)
+{
+	uint16_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Assembly Conversion: ld %04X, a\n", immaddr);
+}
+
 void call(Instr *I, uint8_t *ins)
 {
 	uint16_t immaddr = 0;
@@ -147,7 +155,7 @@ void bit8_xor(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: xor %s\n", regs8[register_index]);
 }
 
-//jump register with condition
+//jump register with condition from current address to value specified
 void jrcond8_imm(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
@@ -156,7 +164,7 @@ void jrcond8_imm(Instr *I, uint8_t *ins)
 	fread(&immaddr, 1, 1, I->ins_pt);
 
 	printf("Instruction Binary: %08b\n", *ins);
-	printf("Assembly Conversion: jr %s, %01X\n", conds[cond_index], immaddr);
+	printf("Assembly Conversion: jr %s, %02X\n", conds[cond_index], immaddr);
 }
 
 void inc_r8(Instr *I, uint8_t *ins)
@@ -165,6 +173,14 @@ void inc_r8(Instr *I, uint8_t *ins)
 
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: inc %s\n", regs8[reg_index]);
+}
+
+void dec_r8(Instr *I, uint8_t *ins)
+{
+	uint8_t reg_index = ((*ins) >> 3) & 0x7;
+
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: dec %s\n", regs8[reg_index]);
 }
 
 void bit_ins(Instr *I, uint8_t *ins)
@@ -179,7 +195,7 @@ void inc16(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
 	printf("Instruction Binary: %08b\n", *ins);
-	printf("Assembly Conversion: inc %s\n", regs16mem[register_index]);
+	printf("Assembly Conversion: inc %s\n", regs16[register_index]);
 }
 
 void dec16(Instr *I, uint8_t *ins)
@@ -237,14 +253,17 @@ void call_stack(Instr *I, uint8_t *ins)
 
 void ld3_switch(Instr *I, uint8_t *ins)
 {
-	uint8_t direction = ((*ins) >> 4) & 0x1;
+	uint8_t direction = ((*ins) >> 3) & 0x1;
 
 	switch(direction)
 	{
 		case 0x0:
+			I->length = 1;
 			ldh_a(I, ins);
 			break;
 		case 0x1:
+			I->length = 3;
+			ld16_imma(I, ins);
 			break;
 	}
 }
@@ -383,6 +402,7 @@ void block0(Instr *I, uint8_t *ins)
 			inc_r8(I, ins);
 			break;
 		case 0x5:
+			dec_r8(I, ins);
 			break;
 		case 0x6:
 			I->length = 2;
