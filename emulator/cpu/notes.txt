@@ -2,3 +2,4 @@ NEXT STEP:
 
 Copy block 2 r8 to r8 accumulator manipulator logic for block 3 accumulator ops with immediate 8 bit reads.
 Decoding process is the same as block 2.
+Look for instruction hex FE -> this is the first bad read.
