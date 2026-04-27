@@ -213,6 +213,18 @@ void call(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: call %04X\n", immaddr);
 }
 
+void popstk_16(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	printf("Assembly Conversion: pop %s\n", regs16[register_index]);
+}
+
+void pushstk_16(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	printf("Assembly Conversion: push %s\n", regs16[register_index]);
+}
+
 void ldh_a(Instr *I, uint8_t *ins)
 {
 	printf("Instruction Binary: %08b\n", *ins);
@@ -323,7 +335,7 @@ void call_stack(Instr *I, uint8_t *ins)
 	switch(direction)
 	{
 		case 0x0:
-			//ld16m_a(I, ins);
+			pushstk_16(I, ins);
 			break;
 		case 0x1:
 			I->length = 3;
@@ -431,6 +443,21 @@ void block3_imm8(Instr *I, uint8_t *ins)
 	}
 }
 
+void bit4_switch(Instr *I, uint8_t *ins)
+{
+	uint8_t four_switch = ((*ins) >> 3) & 0x1;
+
+	switch (four_switch)
+	{
+		case 0x0:
+			popstk_16(I, ins);
+			break;
+		case 0x1:
+			//branch_load(I, ins);
+			break;
+	}
+}
+
 void bit6_switch(Instr *I, uint8_t *ins)
 {
 	uint8_t six_switch = ((*ins) >> 5) & 0x1;
@@ -496,7 +523,7 @@ void block1(Instr *I, uint8_t *ins)
 void accumulator_ops(Instr *I, uint8_t *ins)
 {
 	uint8_t subcode = ((*ins) >> 3) & 0x7;
-	printf("made it here...");
+	//printf("made it here...");
 	I->length = 2;
 
 	switch(subcode)
@@ -531,7 +558,7 @@ void accumulator_ops(Instr *I, uint8_t *ins)
 void block2(Instr *I, uint8_t *ins)
 {
 	uint8_t subcode = ((*ins) >> 3) & 0x7;
-	printf("made it here...");
+	//printf("made it here...");
 	I->length = 1;
 
 	switch(subcode)
@@ -601,6 +628,7 @@ void block3(Instr *I, uint8_t *ins)
 			block3_imm8(I, ins);
 			break;
 		case 0x1:
+			bit4_switch(I, ins);
 			break;
 		case 0x2:
 			bit6_switch(I, ins);
