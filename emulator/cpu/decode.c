@@ -174,6 +174,102 @@ void add_aimm8(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: add a, %02X\n", immaddr);
 }
 
+void rlc_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: rlc %s\n", regs8[register_index]);
+}
+
+void rrc_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: rrc %s\n", regs8[register_index]);
+}
+
+void rl_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: rl %s\n", regs8[register_index]);
+}
+
+void rr_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: rr %s\n", regs8[register_index]);
+}
+
+void sla_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: sla %s\n", regs8[register_index]);
+}
+
+void sra_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: sra %s\n", regs8[register_index]);
+}
+
+void swap_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: swap %s\n", regs8[register_index]);
+}
+
+void srl_8(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Assembly Conversion: srl %s\n", regs8[register_index]);
+}
+
+void rlca_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: rlca\n");
+}
+
+void rrca_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: rrca\n");
+}
+
+void rla_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: rla\n");
+}
+
+void rra_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: rra\n");
+}
+
+void daa_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: daa\n");
+}
+
+void cpl_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: cpl\n");
+}
+
+void scf_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: scf\n");
+}
+
+void ccf_0(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ccf\n");
+}
+
 void ld16m_a(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
@@ -473,6 +569,38 @@ void bit6_switch(Instr *I, uint8_t *ins)
 	}
 }
 
+void seven_tbl(Instr *I, uint8_t *ins)
+{
+	uint8_t subcode = ((*ins) >> 3) & 0x7;
+
+	switch(subcode)
+	{
+		case 0x0:
+			rlca_0(I, ins);
+			break;
+		case 0x1:
+			rrca_0(I, ins);
+			break;
+		case 0x2:
+			rla_0(I, ins);
+			break;
+		case 0x3:
+			rra_0(I, ins);
+			break;
+		case 0x4:
+			daa_0(I, ins);
+			break;
+		case 0x5:
+			cpl_0(I, ins);
+			break;
+		case 0x6:
+			scf_0(I, ins);
+			break;
+		case 0x7:
+			ccf_0(I, ins);
+			break;
+	}
+}
 
 void block0(Instr *I, uint8_t *ins)
 {
@@ -503,6 +631,8 @@ void block0(Instr *I, uint8_t *ins)
 			ld8_imm(I, ins);
 			break;
 		case 0x7:
+			I->length = 1;
+			seven_tbl(I, ins);
 			break;
 	}
 }
@@ -656,20 +786,28 @@ void extended_tbl1(Instr *I, uint8_t *ins)
 	switch(subcode)
 	{
 		case 0x0:
+			rlc_8(I, ins);
 			break;
 		case 0x1:
+			rrc_8(I, ins);
 			break;
 		case 0x2:
+			rl_8(I, ins);
 			break;
 		case 0x3:
+			rr_8(I, ins);
 			break;
 		case 0x4:
+			sla_8(I, ins);
 			break;
 		case 0x5:
+			sra_8(I, ins);
 			break;
 		case 0x6:
+			swap_8(I, ins);
 			break;
 		case 0x7:
+			srl_8(I, ins);
 			break;
 	}
 }
