@@ -51,7 +51,7 @@ void cp_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: cp a, %s\n", regs8[register_index2]);
 }
 
@@ -59,7 +59,7 @@ void or_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: or a, %s\n", regs8[register_index2]);
 }
 
@@ -67,7 +67,7 @@ void xor_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: xor a, %s\n", regs8[register_index2]);
 }
 
@@ -75,7 +75,7 @@ void and_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: and a, %s\n", regs8[register_index2]);
 }
 
@@ -83,7 +83,7 @@ void sbc_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: sbc a, %s\n", regs8[register_index2]);
 }
 
@@ -91,7 +91,7 @@ void sub_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: sub a, %s\n", regs8[register_index2]);
 }
 
@@ -99,7 +99,7 @@ void adc_a8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	uint8_t register_index2 = (*ins) & 0x7;
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: adc a, %s\n", regs8[register_index2]);
 }
 
@@ -114,7 +114,7 @@ void cp_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: cp a, %02X\n", immaddr);
 }
 
@@ -122,7 +122,7 @@ void or_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: or a, %02X\n", immaddr);
 }
 
@@ -130,7 +130,7 @@ void xor_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: xor a, %02X\n", immaddr);
 }
 
@@ -138,7 +138,7 @@ void and_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: and a, %02X\n", immaddr);
 }
 
@@ -146,7 +146,7 @@ void sbc_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: sbc a, %02X\n", immaddr);
 }
 
@@ -154,7 +154,7 @@ void sub_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: sub a, %02X\n", immaddr);
 }
 
@@ -162,7 +162,7 @@ void adc_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: adc a, %02X\n", immaddr);
 }
 
@@ -170,7 +170,7 @@ void add_aimm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	printf("Instruction Binary: %08b\n", *ins, immaddr);
+	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: add a, %02X\n", immaddr);
 }
 
@@ -356,6 +356,12 @@ void jr_imm8(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: jr %02X\n", immaddr);
 }
 
+void ret(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ret\n");
+}
+
 void inc_r8(Instr *I, uint8_t *ins)
 {
 	uint8_t reg_index = ((*ins) >> 3) & 0x7;
@@ -506,6 +512,22 @@ void jr(Instr *I, uint8_t *ins)
 	}
 }
 
+void branch_load(Instr *I, uint8_t *ins)
+{
+	uint8_t cond_switch = ((*ins) >> 5) & 0x1;
+
+	switch(cond_switch)
+	{
+		case 0x0:
+			// jr_stop_noop(I, ins);
+			I->length = 1;
+			ret(I, ins);
+			break;
+		case 0x1:
+			break;
+	}
+}
+
 void block3_imm8(Instr *I, uint8_t *ins)
 {
 	if(!(((*ins) >> 5) & 0x1))
@@ -549,7 +571,7 @@ void bit4_switch(Instr *I, uint8_t *ins)
 			popstk_16(I, ins);
 			break;
 		case 0x1:
-			//branch_load(I, ins);
+			branch_load(I, ins);
 			break;
 	}
 }
