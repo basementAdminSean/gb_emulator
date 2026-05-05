@@ -301,6 +301,27 @@ void ld16_imma(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld %04X, a\n", immaddr);
 }
 
+void call_condimm16(Instr *I, uint8_t *ins)
+{
+	uint8_t cond = ((*ins) >> 3) & 0x3;
+	uint16_t immaddr = 0;
+	if (I->ins_pt)
+	{
+		fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	}
+	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Assembly Conversion: call %02X, %04X\n", cond, immaddr);
+}
+
+void jp_imm16(Instr *I, uint8_t *ins)
+{
+	uint16_t immaddr = 0;
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Assembly Conversion: jp %04X\n", immaddr);
+}
+
 void call(Instr *I, uint8_t *ins)
 {
 	uint16_t immaddr = 0;
@@ -327,6 +348,24 @@ void ldh_a(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ld [c], a\n");
 }
 
+void ei(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ei\n");
+}
+
+void di(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: di\n");
+}
+
+void rst_tgt3(Instr *I, uint8_t *ins)
+{
+	uint8_t target = (*ins >> 3) & 0x7;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: rst %02X\n", target);
+}
 /*void bit8_xor(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = (*ins) & 0x7;
@@ -386,6 +425,22 @@ void bit_ins(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: bit %d, %s\n", b_indx, regs8[register_index]);
 }
 
+void res_ins(Instr *I, uint8_t *ins)
+{
+	uint8_t b_indx = ((*ins) >> 3) & 0x7;
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: res %d, %s\n", b_indx, regs8[register_index]);
+}
+
+void set(Instr *I, uint8_t *ins)
+{
+	uint8_t b_indx = ((*ins) >> 3) & 0x7;
+	uint8_t register_index = (*ins) & 0x7;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: set %d, %s\n", b_indx, regs8[register_index]);
+}
+
 void inc16(Instr *I, uint8_t *ins)
 {
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
@@ -398,6 +453,22 @@ void dec16(Instr *I, uint8_t *ins)
 	uint8_t register_index = ((*ins) >> 4) & 0x3;
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: dec %s\n", regs16mem[register_index]);
+}
+
+void diei(Instr *I, uint8_t *ins)
+{
+	uint8_t diei_bit = ((*ins) >> 3) & 0x1;
+	I->length = 1;
+
+	switch (diei_bit)
+	{
+		case 0x0:
+			di(I, ins);
+			break;
+		case 0x1:
+			ei(I, ins);
+			break;
+	}
 }
 
 void three_switch(Instr *I, uint8_t *ins)
@@ -533,7 +604,7 @@ void block3_imm8(Instr *I, uint8_t *ins)
 	if(!(((*ins) >> 5) & 0x1))
 	{
 		I->length = 1;
-		//ret(I, ins);
+		//ret_cond(I, ins);
 		return;
 	}
 	else
@@ -591,6 +662,22 @@ void bit6_switch(Instr *I, uint8_t *ins)
 	}
 }
 
+void j_diei(Instr *I, uint8_t *ins)
+{
+	uint8_t six_switch = ((*ins) >> 4) & 0x1;
+
+	switch (six_switch)
+	{
+		case 0x0:
+			I->length = 3;
+			jp_imm16(I, ins);
+			break;
+		case 0x1:
+			diei(I, ins);
+			break;
+	}
+}
+
 void seven_tbl(Instr *I, uint8_t *ins)
 {
 	uint8_t subcode = ((*ins) >> 3) & 0x7;
@@ -640,12 +727,15 @@ void block0(Instr *I, uint8_t *ins)
 			three_switch(I, ins);
 			break;
 		case 0x3:
+			I->length = 1;
 			inc_dec(I, ins);
 			break;
 		case 0x4:
+			I->length = 1;
 			inc_r8(I, ins);
 			break;
 		case 0x5:
+			I->length = 1;
 			dec_r8(I, ins);
 			break;
 		case 0x6:
@@ -786,8 +876,11 @@ void block3(Instr *I, uint8_t *ins)
 			bit6_switch(I, ins);
 			break;
 		case 0x3:
+			j_diei(I, ins);
 			break;
 		case 0x4:
+			I->length = 3;
+			call_condimm16(I, ins);
 			break;
 		case 0x5:
 			call_stack(I, ins);
@@ -797,6 +890,8 @@ void block3(Instr *I, uint8_t *ins)
 			accumulator_ops(I, ins); //copy of block2 but with immediate 8 bit read.
 			break;
 		case 0x7:
+			I->length = 1;
+			rst_tgt3(I, ins);
 			break;
 	}
 }
@@ -874,10 +969,10 @@ void decode(Instr *I, uint8_t *ins)
 					bit_ins(I, ins);
 					break;
 				case 0x2:
-					//res_ins(I, ins);
+					res_ins(I, ins);
 					break;
 				case 0x3:
-					//set(I, ins);
+					set(I, ins);
 					break;
 			}
 		}
@@ -903,33 +998,38 @@ int main(int argc, char *argv[])
 			return 0;
 			break;
 		case 2:
+			FILE *fp = fopen("../../ROM/mgb_boot.bin", "rb");
+
+			I.ins_pt = fp;
+
+			if(!fp)
+			{
+				printf("File operation unsuccessfull");
+			}
+			else
+			{
+				printf("File opened...\n");
+				
+				for(int i = 0; i < atoi(argv[1]); i++)
+				{
+					fread(&ins, 1, 1, fp);
+					printf("Instruction Hex: %02X\n", ins);
+					decode(&I, &ins);
+				}
+				
+			}
+			break;
+		case 3:
+			ins = (uint8_t)strtol(argv[2], NULL, 16);
+			I.length = argc - 2;
+			I.ins_pt = NULL;
+			// printf("Manual instruction test: %02X, %08b\n", ins, ins);
+			decode(&I, &ins);
 			break;
 		default:
 			printf("Please specify how many instructions to read as the only argument...\n");
 			return 0;
 			break;
-	}
-
-
-	FILE *fp = fopen("../../ROM/mgb_boot.bin", "rb");
-
-	I.ins_pt = fp;
-
-	if(!fp)
-	{
-		printf("File operation unsuccessfull");
-	}
-	else
-	{
-		printf("File opened...\n");
-		
-		for(int i = 0; i < atoi(argv[1]); i++)
-		{
-			fread(&ins, 1, 1, fp);
-			printf("Instruction Hex: %02X\n", ins);
-			decode(&I, &ins);
-		}
-		
 	}
 
 	return 0;
