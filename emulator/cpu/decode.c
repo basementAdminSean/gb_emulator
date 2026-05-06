@@ -31,6 +31,22 @@ void ldhimm8_a(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: ldh %02X, a\n", immaddr);
 }
 
+void addsp_imm8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: add sp, %02X\n", immaddr);
+}
+
+void ldhlsp_imm8(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %02X\n", *ins, immaddr);
+	printf("Assembly Conversion: ld hl, sp + %02X\n", immaddr);
+}
+
 void ldha_imm8(Instr *I, uint8_t *ins)
 {
 	uint8_t immaddr = 0;
@@ -305,13 +321,11 @@ void call_condimm16(Instr *I, uint8_t *ins)
 {
 	uint8_t cond = ((*ins) >> 3) & 0x3;
 	uint16_t immaddr = 0;
-	if (I->ins_pt)
-	{
-		fread(&immaddr, I->length - 1, 1, I->ins_pt);
-	}
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
 	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
 	printf("Assembly Conversion: call %02X, %04X\n", cond, immaddr);
 }
+
 
 void jp_imm16(Instr *I, uint8_t *ins)
 {
@@ -320,6 +334,16 @@ void jp_imm16(Instr *I, uint8_t *ins)
 	fread(&immaddr, I->length - 1, 1, I->ins_pt);
 	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
 	printf("Assembly Conversion: jp %04X\n", immaddr);
+}
+
+void jpcond_imm16(Instr *I, uint8_t *ins)
+{
+	uint8_t cond = ((*ins) >> 3) & 0x3;
+	uint16_t immaddr = 0;
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	fread(&immaddr, I->length - 1, 1, I->ins_pt);
+	printf("Instruction Binary: %08b\nImmediate Address: %04X\n", *ins, immaddr);
+	printf("Assembly Conversion: jp %02X, %04X\n", cond, immaddr);
 }
 
 void call(Instr *I, uint8_t *ins)
@@ -399,6 +423,13 @@ void ret(Instr *I, uint8_t *ins)
 {
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: ret\n");
+}
+
+void ret_cond(Instr *I, uint8_t *ins)
+{
+	uint8_t cond = ((*ins) >> 3) & 0x3;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ret (cond %02X)\n", cond);
 }
 
 void inc_r8(Instr *I, uint8_t *ins)
@@ -604,7 +635,7 @@ void block3_imm8(Instr *I, uint8_t *ins)
 	if(!(((*ins) >> 5) & 0x1))
 	{
 		I->length = 1;
-		//ret_cond(I, ins);
+		ret_cond(I, ins);
 		return;
 	}
 	else
@@ -615,18 +646,17 @@ void block3_imm8(Instr *I, uint8_t *ins)
 		switch(two_switch)
 		{
 			case 0x0:
-				//ldh [imm8], a
 				ldhimm8_a(I, ins);
 				break;
 			case 0x1:
-				//add sp, imm8
+				addsp_imm8(I, ins);
 				break;
 			case 0x2:
 				//ldh a, [imm8]
 				ldha_imm8(I, ins);
 				break;
 			case 0x3:
-				//ld hl, sp + imm8
+				ldhlsp_imm8(I, ins);
 				break;
 		}
 	}
@@ -654,7 +684,8 @@ void bit6_switch(Instr *I, uint8_t *ins)
 	switch (six_switch)
 	{
 		case 0x0:
-			//jp cond, imm16
+			I->length = 3;
+			jpcond_imm16(I, ins);
 			break;
 		case 0x1:
 			ld3_switch(I, ins);
