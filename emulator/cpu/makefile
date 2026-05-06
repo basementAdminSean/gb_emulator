@@ -1,9 +1,11 @@
-CXX = gcc -Wall -ansi -pedantic -std=c23 -g
+CC = gcc
+CCFLAGS = -Wall -ansi -pedantic -std=c23 -g
 
 decode: decode.o
-	$(CXX) -o decode $^
+	 $(CC) -o decode decode.o
 
 decode.o: decode.c
+	$(CC) $(CCFLAGS) -c decode.c
 
 clean: 
 	rm -f *.o decode 
