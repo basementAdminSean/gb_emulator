@@ -354,6 +354,13 @@ static void jphl(Instr *I, uint8_t *ins)
 	printf("Assembly Conversion: jp [hl]\n");
 }
 
+static void addhl_16(Instr *I, uint8_t *ins)
+{
+	uint8_t register_index = ((*ins) >> 4) & 0x3;
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: add hl, %s\n", regs16[register_index]);
+}
+
 static void jpcond_imm16(Instr *I, uint8_t *ins)
 {
 	uint8_t cond = ((*ins) >> 3) & 0x3;
@@ -444,6 +451,30 @@ static void jr_imm8(Instr *I, uint8_t *ins)
 	printf("Instruction Binary: %08b\n", *ins);
 	printf("Assembly Conversion: jr %02X\n", immaddr);
 }
+
+static void ldimm16_sp(Instr *I, uint8_t *ins)
+{
+	uint8_t immaddr = 0;
+
+	fread(&immaddr, 1, 1, I->ins_pt);
+
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: ld %04X, sp\n", immaddr);
+}
+
+
+static void nop(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: nop\n");
+}
+
+static void stop(Instr *I, uint8_t *ins)
+{
+	printf("Instruction Binary: %08b\n", *ins);
+	printf("Assembly Conversion: stop\n");
+}
+
 
 static void ret(Instr *I, uint8_t *ins)
 {
@@ -576,16 +607,15 @@ static void call_stack(Instr *I, uint8_t *ins)
 
 static void hl_switch(Instr *I, uint8_t *ins)
 {
+	I->length = 1;
 	uint8_t cond_switch = ((*ins) >> 4) & 0x1;
 
 	switch(cond_switch)
 	{
 		case 0x0:
-			// jr_stop_noop(I, ins);
 			jphl(I, ins);
 			break;
 		case 0x1:
-			// jrcond8_imm(I, ins);
 			ldsp_hl(I, ins);
 			break;
 	}
@@ -620,6 +650,7 @@ static void bit16_la(Instr *I, uint8_t *ins)
 			ld16_imm(I, ins);			
 			break;
 		case 0x1:
+			addhl_16(I, ins);
 			break;
 	}
 }
@@ -630,10 +661,15 @@ static void jr_stop_noop(Instr *I, uint8_t *ins)
 
 	switch(switch_bit)
 	{
+		//TODO: implement these last three and decoder is finished.
 		case 0x0:
-			//nop
+			nop(I, ins);
+			break;
+		case 0x1:
+			ldimm16_sp(I, ins);
 			break;
 		case 0x2:
+			stop(I, ins);
 			break;
 		case 0x3:
 			jr_imm8(I, ins);
