@@ -5,7 +5,7 @@
 struct Register {
 	union {
 		uint16_t fullw;
-		struct { uint8_t half1; uint8_t half2; };
+		struct { uint8_t low; uint8_t high; };
 	};
 };
 
@@ -16,3 +16,14 @@ struct Register16 {
 };
 
 typedef struct Register16 Reg16;
+
+struct CPU {
+	Reg Reg_AF; //A -> high  |  F -> low
+	Reg Reg_BC; //B -> high  |  C -> low
+	Reg Reg_DE; //D -> high  |  E -> low
+	Reg Reg_HL; //H -> high  |  L -> low
+	Reg16 Reg_SP;
+	Reg16 Reg_PC;
+};
+
+typedef struct CPU CPU_inst;

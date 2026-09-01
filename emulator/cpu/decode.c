@@ -2,11 +2,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "decode.h" 
+#include "cpu.h" 
 
 static const char* regs16[] = {"bc", "de", "hl", "sp"};
 static const char* regs16mem[] = {"bc", "de", "hl+", "hl-"};
 static const char* regs8[] = {"b", "c", "d", "e", "h", "l" , "[hl]", "a"};
 static const char* conds[] = { "nz", "z", "nc", "c"};
+
+static CPU_inst gb_CPU;
 
 static void ld8_imm(Instr *I, uint8_t *ins)
 {
