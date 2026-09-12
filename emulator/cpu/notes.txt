@@ -1,5 +1,21 @@
-NEXT STEP:
+CURRENT:
 
-Copy block 2 r8 to r8 accumulator manipulator logic for block 3 accumulator ops with immediate 8 bit reads.
-Decoding process is the same as block 2.
-Look for instruction hex FE -> this is the first bad read.
+Overview
+----------
+Build holistic understanding of gameboy memory and implement memory struct in order to test instructions.
+Will need to implement things like echo RAM which will require triggers to maintain correct state.
+Most likely these triggers will need to be implemented by specialized access functions.
+Once memory is built test with Nintendo logo without graphics to verify correct state manipulation
+
+Test
+-----
+Read instruction -> Decode -> Output instruction -> Interact with state -> repeat
+
+Next Step
+----------
+Start by building the 64KB of memory out of uint8_t array. Then in between actually memory access
+and instruction invocation there will be accessor methods in order to handle each section of memory
+correctly and maintain state properly. On top of that there will be another fuction that grabs the
+address from the instruction in order to determine what accessor gets used. Accessing registers is
+much more straight forward as it just requires changing the state within a register excluding register
+F.
