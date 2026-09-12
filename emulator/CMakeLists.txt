@@ -5,8 +5,8 @@ project(gb_emulator C)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+# add after test these memory/memory.h memory/memory.c
 set(SOURCES cpu/cpu.h cpu/main.c)
-
 include_directories(cpu)
 
 # Define executable target
